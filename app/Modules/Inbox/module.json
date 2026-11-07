@@ -1,0 +1,27 @@
+{
+    "key": "inbox",
+    "name": "Unified Inbox",
+    "version": "1.0.0",
+    "group": "A",
+    "core": false,
+    "description": "Unified Inbox module for Social Commerce Order Manager.",
+    "dependencies": [
+        "channels"
+    ],
+    "permissions": [
+        "inbox.view",
+        "inbox.create",
+        "inbox.update",
+        "inbox.delete"
+    ],
+    "menu": [
+        {
+            "label": "Unified Inbox",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

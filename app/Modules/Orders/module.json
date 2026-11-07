@@ -1,0 +1,28 @@
+{
+    "key": "orders",
+    "name": "Order Management",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Order Management module for Social Commerce Order Manager.",
+    "dependencies": [
+        "customers",
+        "catalog"
+    ],
+    "permissions": [
+        "orders.view",
+        "orders.create",
+        "orders.update",
+        "orders.delete"
+    ],
+    "menu": [
+        {
+            "label": "Order Management",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

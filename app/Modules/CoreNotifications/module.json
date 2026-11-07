@@ -1,0 +1,25 @@
+{
+    "key": "core_notifications",
+    "name": "Notifications",
+    "version": "1.0.0",
+    "group": "core",
+    "core": true,
+    "description": "Notifications module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "core_notifications.view",
+        "core_notifications.create",
+        "core_notifications.update",
+        "core_notifications.delete"
+    ],
+    "menu": [
+        {
+            "label": "Notifications",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

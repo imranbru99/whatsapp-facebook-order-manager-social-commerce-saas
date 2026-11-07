@@ -1,0 +1,25 @@
+{
+    "key": "core_auth",
+    "name": "Auth & Users",
+    "version": "1.0.0",
+    "group": "core",
+    "core": true,
+    "description": "Auth & Users module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "core_auth.view",
+        "core_auth.create",
+        "core_auth.update",
+        "core_auth.delete"
+    ],
+    "menu": [
+        {
+            "label": "Auth & Users",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

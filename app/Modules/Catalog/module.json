@@ -1,0 +1,25 @@
+{
+    "key": "catalog",
+    "name": "Product Catalog",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Product Catalog module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "catalog.view",
+        "catalog.create",
+        "catalog.update",
+        "catalog.delete"
+    ],
+    "menu": [
+        {
+            "label": "Product Catalog",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

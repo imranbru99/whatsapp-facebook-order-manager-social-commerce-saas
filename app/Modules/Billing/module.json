@@ -1,0 +1,25 @@
+{
+    "key": "billing",
+    "name": "Platform Billing",
+    "version": "1.0.0",
+    "group": "C",
+    "core": false,
+    "description": "Platform Billing module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "billing.view",
+        "billing.create",
+        "billing.update",
+        "billing.delete"
+    ],
+    "menu": [
+        {
+            "label": "Platform Billing",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

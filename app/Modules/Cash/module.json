@@ -1,0 +1,27 @@
+{
+    "key": "cash",
+    "name": "Cash Management",
+    "version": "1.0.0",
+    "group": "C",
+    "core": false,
+    "description": "Cash Management module for Social Commerce Order Manager.",
+    "dependencies": [
+        "payments"
+    ],
+    "permissions": [
+        "cash.view",
+        "cash.create",
+        "cash.update",
+        "cash.delete"
+    ],
+    "menu": [
+        {
+            "label": "Cash Management",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

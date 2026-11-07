@@ -1,0 +1,27 @@
+{
+    "key": "returns",
+    "name": "Returns & Refunds",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Returns & Refunds module for Social Commerce Order Manager.",
+    "dependencies": [
+        "orders"
+    ],
+    "permissions": [
+        "returns.view",
+        "returns.create",
+        "returns.update",
+        "returns.delete"
+    ],
+    "menu": [
+        {
+            "label": "Returns & Refunds",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

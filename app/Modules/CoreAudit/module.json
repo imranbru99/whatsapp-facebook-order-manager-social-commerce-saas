@@ -1,0 +1,25 @@
+{
+    "key": "core_audit",
+    "name": "Audit Log",
+    "version": "1.0.0",
+    "group": "core",
+    "core": true,
+    "description": "Audit Log module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "core_audit.view",
+        "core_audit.create",
+        "core_audit.update",
+        "core_audit.delete"
+    ],
+    "menu": [
+        {
+            "label": "Audit Log",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,25 @@
+{
+    "key": "integrations",
+    "name": "Integrations Hub",
+    "version": "1.0.0",
+    "group": "F",
+    "core": false,
+    "description": "Integrations Hub module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "integrations.view",
+        "integrations.create",
+        "integrations.update",
+        "integrations.delete"
+    ],
+    "menu": [
+        {
+            "label": "Integrations Hub",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,25 @@
+{
+    "key": "core_settings",
+    "name": "Settings",
+    "version": "1.0.0",
+    "group": "core",
+    "core": true,
+    "description": "Settings module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "core_settings.view",
+        "core_settings.create",
+        "core_settings.update",
+        "core_settings.delete"
+    ],
+    "menu": [
+        {
+            "label": "Settings",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

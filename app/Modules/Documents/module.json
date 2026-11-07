@@ -1,0 +1,25 @@
+{
+    "key": "documents",
+    "name": "Document Templates",
+    "version": "1.0.0",
+    "group": "E",
+    "core": false,
+    "description": "Document Templates module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "documents.view",
+        "documents.create",
+        "documents.update",
+        "documents.delete"
+    ],
+    "menu": [
+        {
+            "label": "Document Templates",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

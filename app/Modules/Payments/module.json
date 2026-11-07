@@ -1,0 +1,27 @@
+{
+    "key": "payments",
+    "name": "Payments",
+    "version": "1.0.0",
+    "group": "C",
+    "core": false,
+    "description": "Payments module for Social Commerce Order Manager.",
+    "dependencies": [
+        "orders"
+    ],
+    "permissions": [
+        "payments.view",
+        "payments.create",
+        "payments.update",
+        "payments.delete"
+    ],
+    "menu": [
+        {
+            "label": "Payments",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

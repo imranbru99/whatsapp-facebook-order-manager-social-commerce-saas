@@ -1,0 +1,27 @@
+{
+    "key": "coupons",
+    "name": "Coupons & Offers",
+    "version": "1.0.0",
+    "group": "D",
+    "core": false,
+    "description": "Coupons & Offers module for Social Commerce Order Manager.",
+    "dependencies": [
+        "orders"
+    ],
+    "permissions": [
+        "coupons.view",
+        "coupons.create",
+        "coupons.update",
+        "coupons.delete"
+    ],
+    "menu": [
+        {
+            "label": "Coupons & Offers",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,27 @@
+{
+    "key": "reports",
+    "name": "Reports Center",
+    "version": "1.0.0",
+    "group": "F",
+    "core": false,
+    "description": "Reports Center module for Social Commerce Order Manager.",
+    "dependencies": [
+        "dashboards"
+    ],
+    "permissions": [
+        "reports.view",
+        "reports.create",
+        "reports.update",
+        "reports.delete"
+    ],
+    "menu": [
+        {
+            "label": "Reports Center",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,25 @@
+{
+    "key": "core_modules",
+    "name": "Module Center",
+    "version": "1.0.0",
+    "group": "core",
+    "core": true,
+    "description": "Module Center module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "core_modules.view",
+        "core_modules.create",
+        "core_modules.update",
+        "core_modules.delete"
+    ],
+    "menu": [
+        {
+            "label": "Module Center",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

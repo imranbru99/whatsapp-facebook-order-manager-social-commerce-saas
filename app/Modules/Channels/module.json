@@ -1,0 +1,25 @@
+{
+    "key": "channels",
+    "name": "Channel Connections",
+    "version": "1.0.0",
+    "group": "A",
+    "core": false,
+    "description": "Channel Connections module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "channels.view",
+        "channels.create",
+        "channels.update",
+        "channels.delete"
+    ],
+    "menu": [
+        {
+            "label": "Channel Connections",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

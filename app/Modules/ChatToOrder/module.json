@@ -1,0 +1,29 @@
+{
+    "key": "chat_to_order",
+    "name": "Chat-to-Order",
+    "version": "1.0.0",
+    "group": "A",
+    "core": false,
+    "description": "Chat-to-Order module for Social Commerce Order Manager.",
+    "dependencies": [
+        "inbox",
+        "orders",
+        "catalog"
+    ],
+    "permissions": [
+        "chat_to_order.view",
+        "chat_to_order.create",
+        "chat_to_order.update",
+        "chat_to_order.delete"
+    ],
+    "menu": [
+        {
+            "label": "Chat-to-Order",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

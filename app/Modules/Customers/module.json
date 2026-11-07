@@ -1,0 +1,25 @@
+{
+    "key": "customers",
+    "name": "Customers",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Customers module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "customers.view",
+        "customers.create",
+        "customers.update",
+        "customers.delete"
+    ],
+    "menu": [
+        {
+            "label": "Customers",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

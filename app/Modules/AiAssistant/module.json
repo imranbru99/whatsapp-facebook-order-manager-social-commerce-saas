@@ -1,0 +1,25 @@
+{
+    "key": "ai_assistant",
+    "name": "AI Assistant",
+    "version": "1.0.0",
+    "group": "A",
+    "core": false,
+    "description": "AI Assistant module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "ai_assistant.view",
+        "ai_assistant.create",
+        "ai_assistant.update",
+        "ai_assistant.delete"
+    ],
+    "menu": [
+        {
+            "label": "AI Assistant",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,27 @@
+{
+    "key": "couriers",
+    "name": "Courier & Delivery",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Courier & Delivery module for Social Commerce Order Manager.",
+    "dependencies": [
+        "orders"
+    ],
+    "permissions": [
+        "couriers.view",
+        "couriers.create",
+        "couriers.update",
+        "couriers.delete"
+    ],
+    "menu": [
+        {
+            "label": "Courier & Delivery",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

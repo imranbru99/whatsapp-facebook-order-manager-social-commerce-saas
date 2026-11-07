@@ -1,0 +1,321 @@
+# MASTER PROMPT — Social Commerce Order Manager (Facebook / WhatsApp Orders)
+
+> Paste this whole document into your AI code agent as the task brief. Work phase by phase. Do not stop until every acceptance criterion at the end is met.
+
+---
+
+## 0. ROLE AND MISSION
+
+You are a principal-level Laravel architect and full-stack engineer. Build **"Social Commerce Order Manager: Facebook/WhatsApp orders"**, a complete, production-grade, end-to-end business application. It must be the best application in its category worldwide: fast, secure, beautiful, multilingual, and complete enough that a business can run its whole operation on it.
+
+The core idea: businesses that sell through Facebook Pages, Messenger, Instagram DMs, and WhatsApp receive orders as chat messages and comments. The app captures those conversations, turns them into structured orders (manually, by agent, or by AI), then manages everything after: customer, inventory, payment, courier, delivery, returns, accounting, staff, reports, and growth.
+
+It must be **fully modular**: every module can be switched ON or OFF per business (and per branch). A business turns on only what it needs; the app must run correctly with any combination of modules enabled or disabled.
+
+---
+
+## 1. TECH STACK (MANDATORY)
+
+- PHP 8.3+, Laravel (latest stable), Filament (latest stable major) for all panels.
+- MySQL 8 (primary), Redis (cache, queues, sessions, locks, rate limiting), Laravel Horizon for queues, Laravel Reverb or Pusher for realtime (live inbox).
+- Frontend for public site: Blade + Tailwind CSS + Alpine.js (Livewire where useful). Fast, SEO-friendly, mobile-first.
+- Testing: Pest. Static analysis: Larastan (level 6+). Code style: Laravel Pint.
+- Everything in English and Bangla at minimum (see Localization), with a structure that allows adding any language.
+
+### Required packages (use them, do not re-invent)
+
+Before using each package, open its Packagist page and its README/source in `vendor/` and follow its real API and config. Do not guess method names. If something is missing from a package, wrap it in a thin adapter inside the app, never fork silently.
+
+| Package | Purpose in this app |
+|---|---|
+| `imrandevbd/drutogoti` | Performance and speed layer (caching, response optimization). Enable on public pages and heavy admin lists. |
+| `imrandevbd/laravel-admin-panel` | Base for the dashboard/admin panel scaffolding. Build every panel on top of it with Filament. |
+| `imrandevbd/laravel-ai-catalog` | Scrape/import product data from online sources (competitor pages, supplier pages, Facebook shop/catalog URLs) into the product catalog. |
+| `imrandevbd/laravel-ai-hub` | Single gateway to any AI provider (OpenAI, Gemini, Claude, etc.) for order extraction, replies, summaries, translation, forecasting. Provider and model selectable per business. |
+| `imrandevbd/laravel-attendance-hub` | Integrate any attendance machine (ZKTeco and others) for staff attendance, shifts, and payroll input. |
+| `imrandevbd/laravel-unicode-pdf` | All PDFs (invoices, challans, labels, reports, payslips) in any language, including Bangla, Arabic, Hindi, CJK, with correct shaping. |
+| `imrandevbd/laravel-universal-slug` | Slugs in any language for products, categories, pages, blog posts, shops. |
+
+Rule: if a requirement can be met by one of these packages, it must be. List in the README exactly where each package is used.
+
+---
+
+## 2. ARCHITECTURE RULES
+
+1. **Multi-tenant**: one installation hosts many Businesses (tenants). Each business has Branches. Every tenant-owned table carries `business_id` (and `branch_id` where relevant) with global scopes enforced at the model layer plus policy checks. A test suite must prove no cross-tenant data leakage.
+2. **Module system**: build a `Modules` registry. Each module is a self-contained folder (`app/Modules/<Name>` or `modules/<Name>`) with its own migrations, models, Filament resources/pages/widgets, policies, routes, translations, settings, seeders, and a `module.json` manifest (name, version, dependencies, permissions, menu entries, settings schema, events it emits/listens to).
+3. **Module toggles**: table `business_modules` (business_id, branch_id nullable, module_key, enabled, settings JSON). Disabled module means: menu hidden, routes 404, policies deny, scheduled jobs skip, API endpoints return 403, widgets removed. Enabling a module with unmet dependencies must prompt to enable them; disabling one that others depend on must warn. Provide a Super Admin and Business Owner UI "Module Center" with plain-language descriptions, toggles, and an onboarding wizard that suggests module sets by business type (see 3.0 presets).
+4. **Loose coupling**: modules communicate via domain events and interfaces, never by hard references to other modules' tables. Example: Orders emits `OrderConfirmed`; Inventory, Accounting, Courier, Notifications each listen only if enabled.
+5. **Branches**: multi-branch with branch-level stock, staff, cash, reports, and permissions. A business with one branch must never see branch complexity unless it enables Multi-Branch.
+6. **Everything auditable**: activity log on all important models (who, what, old/new, IP, device).
+7. **API first**: every feature has a documented REST API (Sanctum tokens) plus webhooks out, so mobile apps can be built later. Generate OpenAPI docs.
+8. **Queues for all slow work**: webhooks respond in under 200 ms and enqueue; AI calls, messaging, courier calls, PDF generation, imports, and scraping run on queues with retries, backoff, idempotency keys, and dead-letter handling.
+9. **Settings**: central typed settings system (global, business, branch, user levels) with caching.
+10. **Security by default**: see section 8.
+
+---
+
+## 3. USER TYPES, ROLES, AND PANELS
+
+Build separate Filament panels (or panel areas) with proper auth guards and a shared permission engine (spatie/laravel-permission or equivalent, with per-business custom roles):
+
+| User type | Panel / access |
+|---|---|
+| Super Admin (platform owner) | Platform panel: tenants, plans, billing, module catalog, global settings, system health, impersonation (logged), support |
+| Business Owner | Full business panel: all enabled modules, billing, module center, staff, reports |
+| Branch Manager | Branch-scoped panel |
+| Order Agent / Sales Agent | Inbox, order creation, customer chat, follow-ups, own performance |
+| Inventory / Warehouse Staff | Stock, purchase receiving, packing, dispatch |
+| Packing Staff | Pick-pack screen, barcode scan, label print |
+| Delivery Rider / Courier Staff | Mobile-friendly rider panel (assigned deliveries, status update, COD collection, proof of delivery) |
+| Accountant | Accounting, payments, reconciliation, tax reports |
+| HR Manager | Staff, attendance, leave, payroll |
+| Marketing Staff | Campaigns, broadcasts, coupons, audiences |
+| Customer Support | Tickets, returns, complaints |
+| Supplier / Vendor (optional module) | Supplier portal: purchase orders, invoices, stock availability |
+| Reseller / Affiliate (optional module) | Reseller portal: own orders, commissions, catalog |
+| Customer (end buyer) | Customer portal: order tracking, invoices, reorder, wallet, loyalty, returns |
+| Auditor / Read-only | View-only reports and logs |
+
+Features for users: custom role builder, granular permissions per resource/action/field, 2FA (TOTP + email), login history, forced password policy, device/session management, IP allowlist per role, impersonation with audit.
+
+### 3.0 Business-type presets (for onboarding wizard)
+
+Presets that auto-enable sensible modules: Fashion/Clothing, Cosmetics/Beauty, Electronics/Gadgets, Food/Home Kitchen, Grocery, Books/Stationery, Handmade/Craft, Digital Products, Wholesale/Reseller, Pharmacy-lite (non-prescription), Service Booking, Generic. Preset only suggests; owner can change anything.
+
+---
+
+## 4. COMPLETE MODULE LIST (ALL MUST BE BUILT, EACH TOGGLEABLE)
+
+Group A is the core product. Other groups complete it into a full business suite. Mark "Core" modules (cannot be turned off): Auth & Users, Settings, Module Center, Notifications base, Audit Log.
+
+### Group A — Social Commerce Core
+
+**A1. Channel Connections (Meta and others)**
+- Facebook Pages: Messenger inbox, page post comments (auto-capture "price", "size", "order" style comments, hide/reply/private-reply).
+- Instagram Business: DMs, comments, story replies.
+- WhatsApp Business Cloud API: inbound/outbound messages, media, templates (approval status sync), 24-hour customer-service-window enforcement, opt-in tracking, interactive messages (buttons/lists), catalog/product messages, order status template notifications.
+- Optional adapters behind one interface: Telegram, Viber, TikTok Shop import, website live chat, SMS, email, manual/phone orders.
+- Official OAuth connection flow, long-lived token refresh, webhook signature verification (`X-Hub-Signature-256`), webhook verification challenge, replay protection, per-channel health dashboard, rate-limit handling, message deduplication.
+- Multiple pages/numbers per business and per branch.
+- Must comply with Meta platform policies (messaging windows, templates, opt-out handling). Show clear errors when a send is blocked by policy.
+
+**A2. Unified Inbox (live)**
+- One real-time inbox for all channels: conversations, assignment, round-robin/auto-routing by rules, labels, notes (internal), canned replies with variables, quick replies, attachments, voice-note playback, image preview, emoji, search, filters, SLA timers, snooze, merge duplicate customers across channels.
+- Collision detection (two agents typing), presence, unread counters, keyboard shortcuts, bulk actions.
+- Side panel in a conversation: customer profile, past orders, open orders, cart builder, payment status, shipment tracking, AI suggestions.
+
+**A3. Chat-to-Order Capture**
+- "Create order from chat" in one click: pick products from catalog inside the conversation, auto-fill customer/address.
+- **AI Order Extraction** (via `laravel-ai-hub`): reads a chat thread or pasted message (Bangla, English, Banglish, mixed) and extracts customer name, phone, address (with district/thana/area normalization), products, quantity, size/color/variant, price, delivery preference, notes. Shows a confidence score per field and a side-by-side "verify and confirm" screen. Never auto-confirm below a configurable confidence threshold.
+- Comment-to-order: detect order intent in comments, send private reply with order form link or WhatsApp deep link.
+- Order form links and WhatsApp/Messenger deep-link generators; public "Order Form" page per business with product picker.
+- Bulk paste import: paste many raw chat messages, get parsed order drafts.
+- Draft orders, quotation orders, hold orders, scheduled orders, pre-orders, backorders.
+- Duplicate-order detection (same phone, same items, short window) with merge or ignore.
+
+**A4. AI Assistant Layer** (all through `laravel-ai-hub`, provider/model configurable, with cost tracking per business and usage limits per plan)
+- Suggested replies in the customer's language and tone; auto-reply bot with business-hours rules, FAQ knowledge base, handover to human on low confidence or keywords.
+- Conversation summary, sentiment, intent detection (price query, order, complaint, return, tracking).
+- Auto product recommendation and upsell in chat.
+- Address cleaner and geocoder (Bangladesh-aware: division/district/upazila/union, plus international formats).
+- Fake/risky order scoring (phone patterns, repeated returns, blacklisted area/number, mismatch signals).
+- Sales forecasting, reorder suggestions, best-time-to-message suggestions.
+- Prompt templates editable per business, versioned, with test playground. Log every AI call (tokens, cost, latency, result) with PII redaction option.
+
+### Group B — Orders and Fulfillment
+
+**B1. Order Management**
+- Order lifecycle with configurable statuses and transitions: Draft → Pending Confirmation → Confirmed → Processing → Packed → Ready to Ship → Shipped → Out for Delivery → Delivered; plus On Hold, Cancelled, Failed Delivery, Return Requested, Returned, Refunded, Exchange. Custom statuses allowed, with status-change rules, required fields, and automatic actions.
+- Order sources, tags, priority, notes, attachments, internal comments, timeline (every event), multi-item, variants, bundles, discounts (line/order/coupon), taxes (VAT/GST configurable), delivery charge rules (zone/weight/flat/free-over-X), extra fees, advance payment, partial payment, COD, due tracking.
+- Order edit with versioning and re-calc, split order, merge order, clone/reorder, bulk status update, bulk print, import/export (CSV/XLSX), saved filters/views.
+- Confirmation workflow: call/message confirmation task list for agents, auto-confirmation message with "reply YES to confirm" handling, confirmation attempts log.
+- Customer-facing order summary page with secure token link (no login) for confirm/edit address/pay/track.
+
+**B2. Customers (CRM-lite built in; full CRM is Group D)**
+- Unified customer profile across channels (merge by phone/email/social ID), multiple addresses, tags, segments, notes, lifetime value, order history, return rate, preferred channel, language, birthday, blacklist/VIP flags, consent records.
+- Customer scoring (success rate, return rate, risk), automatic warnings to agents at order time.
+
+**B3. Product Catalog**
+- Products, variants (size/color/any attribute), bundles/kits, categories (tree), brands, units, barcodes/QR/SKU generators, images/gallery, videos, price lists (retail, wholesale, reseller, per-branch), cost price, tiered pricing, specs, tags, SEO fields, multilingual names/descriptions, slugs in any language via `laravel-universal-slug`.
+- Import from online sources and Facebook/Shopify/WooCommerce/website URLs via `laravel-ai-catalog` (preview, map fields, AI-clean titles/descriptions, translate, deduplicate, download images with permission checks and source attribution).
+- Facebook Shop / WhatsApp Catalog sync (export products to Meta catalog), shareable product cards and catalog links for chat.
+- Bulk edit, CSV/XLSX import-export, product approval flow (optional).
+
+**B4. Inventory and Warehouse**
+- Multi-warehouse/branch stock, stock ledger (every movement), reservations on order confirmation, release on cancel, low-stock alerts, reorder points, batch/lot and expiry (optional toggle), serial/IMEI tracking (optional toggle), stock adjustments with reasons, stock transfers between branches, stock counts/audits with variance, damaged/lost stock, bin locations.
+- Barcode/QR scanning (camera and USB scanners) for receiving, packing, counts.
+- Negative-stock policy per business (block/allow/backorder).
+
+**B5. Purchase and Supplier Management**
+- Suppliers, purchase orders, goods receipt, supplier bills, returns to supplier, landed cost, supplier payments, supplier ledger, price history, auto-PO suggestions from low stock, supplier portal (optional).
+
+**B6. Packing and Dispatch**
+- Pick lists, pack screen with scan verification, package weight/dimension, packing slips, shipping label printing (thermal and A4), batch dispatch, handover sheet/manifest per courier with scan-to-handover, dispatch cut-off rules.
+
+**B7. Courier and Delivery Management**
+- Courier adapter interface with ready integrations for Bangladesh: Steadfast, Pathao, RedX, Paperfly, eCourier, Sundarban, SA Paribahan (build adapters with clean contracts and sandbox mocks; real credentials via settings), plus generic custom courier and international (DHL, FedEx, Aramex via generic adapter).
+- Features: create parcel (single/bulk), auto courier selection by rules (zone, weight, cost, success rate), live tracking sync (webhook/poll), status mapping to order statuses, COD collection tracking and courier payment reconciliation, charge calculator, return parcel handling, courier performance report (success rate, avg time, cost).
+- Own-delivery mode: riders, zones, route batches, assignment, rider app view (mobile web/PWA) with proof of delivery (photo/signature/OTP), COD handover, rider commission, rider tracking (optional GPS).
+- Customer notifications at each milestone (WhatsApp/SMS/Messenger/email) with templates.
+
+**B8. Returns, Exchanges, Refunds**
+- Return/exchange requests (staff or customer portal), reason codes, approval flow, pickup scheduling, QC inspection, restock/scrap decision, refund (cash, wallet, bank, mobile banking), store credit, credit notes, effect on stock, accounting, and customer score.
+
+### Group C — Payments and Money
+
+**C1. Payments**
+- Methods: COD, bKash, Nagad, Rocket, Upay, bank transfer, card, SSLCommerz, aamarPay, ShurjoPay, Stripe, PayPal, Razorpay, and manual methods. Implement through a payment-gateway adapter interface; ship at least: COD, manual (with screenshot/TrxID proof), SSLCommerz, bKash (tokenized), Stripe, PayPal; others as documented stubs with the same contract.
+- Payment links and QR for chat, partial/advance payments, TrxID verification (manual and auto-match from SMS/email forwarding), payment reminders, refunds, wallets, payment reconciliation and gateway fee tracking.
+- Wallet and store credit for customers (optional module).
+
+**C2. Accounting**
+- Chart of accounts, double-entry journal auto-posted from orders, payments, purchases, returns, expenses, payroll; ledgers, trial balance, P&L, balance sheet, cash flow, day book, cash/bank/mobile-wallet accounts, expense categories and vouchers, recurring expenses, courier COD reconciliation, tax/VAT reports, multi-currency with exchange rates, period closing, fiscal years, attachments on entries.
+- Profit per order (price − cost − delivery − gateway fee − ad cost allocation − returns).
+
+**C3. Cash Management and Branch Cash**
+- Cash drawers, daily cash in/out, handover between staff, shortage/excess tracking.
+
+**C4. Subscription and Billing (platform level)**
+- Plans (free/pro/enterprise or custom), per-module pricing, usage limits (orders/month, AI credits, staff seats, channels), trials, coupons, invoices, dunning, payment of the SaaS fee via gateways, upgrade/downgrade proration, tenant suspension rules.
+
+### Group D — Growth and Customer Engagement
+
+**D1. CRM and Sales Pipeline** — leads from social, lead stages, follow-up tasks, reminders, call logs, notes, quotes, conversion tracking.
+**D2. Marketing Automation** — broadcast campaigns (WhatsApp templates, SMS, email, Messenger within policy), audience segments, drip sequences, abandoned-chat follow-up, post-delivery review request, win-back flows, birthday/offers, A/B tests, unsubscribe/opt-out management, campaign analytics.
+**D3. Coupons, Offers, Flash Sales, Bundles, Loyalty** — coupon rules engine, auto-apply offers, buy-X-get-Y, tiered discounts, points and tiers, referral program.
+**D4. Affiliate and Reseller Management** — reseller accounts, price tiers, commissions, payouts, reseller portal and order tagging.
+**D5. Reviews and Reputation** — collect post-delivery reviews through chat, moderate, publish on public pages.
+**D6. Help Desk and Tickets** — tickets from chat, SLA, categories, escalation, CSAT.
+**D7. Live Commerce Support** — capture orders from Facebook Live comments (keyword/number claims), claim lists, auto-message winners, payment deadline timers.
+**D8. Website / Storefront (lite)** — optional hosted mini-store per business: product pages, cart, checkout (creates the same order), custom domain, SEO, WhatsApp order button. Uses the same catalog.
+
+### Group E — People and Operations
+
+**E1. HR, Attendance, Payroll** — staff profiles, documents, shifts/rosters, **attendance via `laravel-attendance-hub`** (any attendance machine, device management, sync logs, manual correction with approval), leave, holidays, overtime, salary structure, commissions/incentives from orders, advances/loans, payslips (PDF via `laravel-unicode-pdf`), payroll posting to accounting.
+**E2. Task and Workflow Automation** — tasks, checklists, rule engine "when X then Y" (e.g., order delivered → send review request; order value > X → require manager approval), approval workflows, scheduled automations, webhooks.
+**E3. Asset and Expense Tracking** (optional) — assets, maintenance, depreciation.
+**E4. Document and Template Center** — invoice, challan, label, receipt, quotation templates with a visual/HTML-based designer, language and paper size options (A4, A5, thermal 58/80 mm), all PDFs via `laravel-unicode-pdf`.
+
+### Group F — Intelligence, Reports, Platform
+
+**F1. Dashboards and Analytics** — built on `laravel-admin-panel` + Filament widgets: sales today/week/month, orders by channel/status/agent/courier, conversion from chat to order, response time, delivery success rate, return rate, best products, stock health, cash position, profit, cohort and repeat-purchase, agent leaderboard, ad-source ROI (UTM/ref tracking from links), forecast. Custom dashboards per role, date range filters, export (PDF/XLSX/CSV), scheduled email reports.
+**F2. Reports Center** — 80+ standard reports across all modules (sales, product, customer, agent, courier, inventory, accounting, tax, HR), saved/scheduled, with filters and drill-down.
+**F3. Notifications** — in-app, email, SMS, WhatsApp, push (PWA), per-event and per-role preferences, templates, quiet hours.
+**F4. Integrations Hub** — webhooks in/out, API tokens, Zapier/Make-compatible endpoints, Google Sheets export, Shopify/WooCommerce import, Facebook Ads (basic spend import for ROI), Google Analytics/Meta Pixel + Conversions API events for the storefront, SMS gateways (BD and international).
+**F5. Data Tools** — import/export wizards, bulk operations, backup/restore (per tenant), data retention and anonymization, GDPR-style export/delete of a customer.
+**F6. System Health (platform)** — queue status, failed jobs, webhook failures, error log viewer, uptime checks, performance metrics, feature flags, maintenance mode.
+**F7. Localization** — Bangla and English fully translated (UI, emails, PDFs, notifications), language switcher per user, RTL support (Arabic/Urdu), per-business currency/timezone/date format, number formatting (including Bangla digits option), translation manager UI.
+
+---
+
+## 5. PUBLIC WEBSITE (SEVERAL PAGES, SHOWING EVERY FEATURE IN README.md)
+
+Build a polished, fast, SEO-optimized public marketing site (Blade + Tailwind + Alpine, served with `drutogoti` speed layer). Content must be generated from and consistent with `README.md`; keep a single source of truth (e.g., `config/features.php` or a features seeder) from which both README sections and public pages are built, so they never drift apart.
+
+Pages (each with unique meta, OpenGraph, schema.org, sitemap, canonical, hreflang; slugs via `laravel-universal-slug`):
+1. **Home** — hero, one-line value, animated chat→order demo, channel logos, key benefits, module grid, social proof, pricing teaser, demo CTA.
+2. **Features (overview)** — every module group with every feature listed and searchable/filterable by module.
+3. **One page per major module** (Inbox, AI Order Capture, Orders, Catalog, Inventory, Courier, Payments, Accounting, CRM and Marketing, HR and Attendance, Reports, Integrations, Customer Portal, Storefront).
+4. **Modules / Build Your Own Plan** — interactive module picker showing which modules a business can switch on/off, live price estimate, presets by business type.
+5. **Solutions by business type** — Fashion, Cosmetics, Gadgets, Food, Grocery, Wholesale, etc.
+6. **Integrations** — channels, couriers, payment gateways, AI providers, attendance machines.
+7. **Pricing** — plans, comparison table, FAQ, toggle monthly/yearly, currency switch.
+8. **How it works** — step-by-step from Facebook/WhatsApp message to delivered order.
+9. **Live Demo** — instant demo login chooser (see section 7), no signup.
+10. **Security and Compliance**, **API and Developers** (docs link), **Changelog**, **Roadmap**.
+11. **Blog/Help Center/Knowledge base** (CMS-managed), **About**, **Contact** (form with anti-spam), **Careers (optional)**, **Legal** (Terms, Privacy, Refund, Cookie).
+12. **Sign up / Start free trial** with onboarding wizard entry.
+13. Custom 404/500, maintenance page, robots, sitemap, RSS.
+
+A simple CMS (Filament) lets Super Admin edit all of these pages, SEO fields, testimonials, FAQs, and pricing without code. Multilingual (English + Bangla).
+
+---
+
+## 6. README.md (MANDATORY DELIVERABLE)
+
+Create a complete `README.md` containing: product overview, screenshots placeholders, full feature list by module (matching section 4, each feature as a checkbox with status), architecture overview with diagram (Mermaid), module system explanation and how to create a new module, package usage map (where each of the 7 required packages is used), installation (requirements, `.env`, migrations, seeders, queue/Horizon/Reverb setup, scheduler, storage link), Meta/WhatsApp setup guide (app creation, webhooks, permissions, templates), courier and payment gateway setup guides, AI provider setup, attendance machine setup, demo credentials table, deployment guide (VPS with nginx/FastPanel, supervisor/Horizon, Redis, SSL, cron), backup strategy, testing guide, security notes, API overview, contributing, license, roadmap.
+
+Also create `docs/` with deeper guides, plus an `ARCHITECTURE.md`, `MODULES.md` (every module with its key, dependencies, permissions, events), and `API.md` (or generated OpenAPI).
+
+---
+
+## 7. DEMO DATA AND DEMO USERS
+
+A single command `php artisan demo:seed` (and also run by default in local/demo environments) must create a rich, realistic, **ready-to-explore** demo:
+
+- 3 demo businesses of different types (e.g., Fashion shop, Gadget shop, Food/Home kitchen), each with different module sets enabled, so people can see the module toggle effect. One business with Multi-Branch (3 branches), others single branch.
+- For each: 100–300 products with variants and images (placeholder or generated), 200+ customers, 500+ orders across all statuses over the last 6 months, conversations with realistic Bangla/English/mixed messages across Facebook, Instagram, WhatsApp (mock channel adapter, no real Meta calls), purchase orders, stock movements, couriers with tracking histories, payments, returns, expenses, accounting entries, staff, attendance logs, campaigns, tickets, reviews.
+- **Demo users for every user type** in section 3 for each business, with predictable credentials listed in README and on the public Live Demo page (e.g., `owner@demo-fashion.test / password` pattern; no real emails). Super Admin demo too.
+- Public **Live Demo** page: choose business type and role, click "Login as", land in the matching panel. Demo mode must: block real outbound messages/payments (mock adapters), reset data nightly (scheduled job), rate-limit, show a "Demo" banner, and prevent changing demo passwords or deleting demo accounts.
+- **Mock channel simulator**: a tool inside demo mode to simulate an incoming Facebook/WhatsApp message (including a Bangla order text) and watch it become an order via the AI extraction flow (use a fake/recorded AI response when no AI key is set).
+
+---
+
+## 8. SECURITY, QUALITY, PERFORMANCE (NON-NEGOTIABLE)
+
+**Security**: strict tenant isolation tests; policies on every resource; mass-assignment protection; validation via Form Requests; webhook signature verification and replay protection; encrypted storage of tokens/secrets (Laravel encrypted casts), secrets never logged; CSRF, XSS, SQLi protection; secure file uploads (type/size/virus-scan hook, private storage with signed URLs); rate limiting on login, API, public forms, webhooks; 2FA; audit log; PII minimization and masking in logs and AI prompts (configurable); data export/delete requests; backup encryption; security headers (CSP, HSTS, etc.); dependency audit in CI.
+
+**Performance**: eager loading everywhere (no N+1, enforce with `Model::preventLazyLoading()` in non-production), DB indexes on all filter/sort/foreign keys, composite indexes for tenant queries, cache heavy aggregates (with invalidation), paginated and virtualized large tables, queue everything slow, `drutogoti` on public pages and heavy lists, response caching for public pages, image optimization (WebP, lazy load), CDN-ready assets. Targets: public pages LCP under 2 s on mid-range mobile; common admin list pages under 300 ms server time at 100k orders; webhook ack under 200 ms.
+
+**Reliability**: idempotent jobs, retry/backoff, circuit breakers for external APIs, failure alerts, health checks, graceful degradation when AI/courier/channel is down (queue and retry, show status to agents).
+
+**Quality**: Pest tests for domain logic (order totals, taxes, stock reservation, module toggling, tenant isolation, webhook handling, AI extraction parsing with fixtures, courier status mapping, payment reconciliation, accounting postings balance), feature tests for each panel's main flows, browser smoke tests (Pest Browser/Dusk) for demo login and chat→order. Minimum 80% coverage on domain/services. Pint + Larastan in CI (GitHub Actions workflow included). Seeders and factories for every model. Strict types, DTOs/Actions pattern for business logic, thin controllers/resources, no logic in Blade.
+
+**UX**: Filament panels themed per business (logo, colors), dark mode, fully responsive, global search, command palette, keyboard shortcuts, helpful empty states, inline help, guided tours for first use, accessible (WCAG AA basics), consistent Bangla/English typography (Noto Sans Bengali or similar, correct in PDFs too).
+
+---
+
+## 9. DATA MODEL GUIDANCE (design properly, extend as needed)
+
+Core tables (all tenant-scoped unless platform-level): businesses, branches, users, roles/permissions, business_modules, settings, channels (type, external_id, tokens, status), conversations, messages, message_attachments, contacts/customers, customer_identities (channel IDs, phones), addresses, products, product_variants, product_prices, categories, brands, units, warehouses, stock_items, stock_movements, suppliers, purchase_orders(+items), goods_receipts, orders, order_items, order_status_history, order_events, payments, payment_methods, refunds, returns(+items), couriers, courier_accounts, shipments, shipment_events, delivery_zones, riders, coupons, campaigns, campaign_recipients, message_templates, automations, tasks, tickets, reviews, accounts (chart), journal_entries(+lines), expenses, employees, attendance_logs, shifts, leaves, payrolls, ai_requests (usage/cost), webhooks_in/out log, api_tokens, activity_log, plans, subscriptions, invoices (platform), pages/posts (CMS), demo_sessions.
+
+Use ULIDs or UUIDs for public identifiers, auto-increment or ULID internally as you decide, soft deletes where business-relevant, money stored as integer minor units with currency, all timestamps UTC with per-business timezone display.
+
+---
+
+## 10. BUILD PLAN (DO IN THIS ORDER; COMMIT PER STEP; KEEP APP RUNNABLE AT EVERY STEP)
+
+1. **Foundation**: fresh Laravel + Filament, install the 7 required packages, read their docs, env/config, CI, Pint/Larastan/Pest, tenancy, auth, roles/permissions, settings, activity log, localization base, module registry + Module Center.
+2. **Catalog, Customers, Inventory, Orders** (with statuses, totals, taxes, discounts, timeline), print templates with `laravel-unicode-pdf`.
+3. **Channels + Inbox**: webhook receivers (Meta), mock adapter, realtime inbox, assignment, canned replies, chat-to-order.
+4. **AI layer** via `laravel-ai-hub`: extraction, replies, summaries, risk scoring, usage tracking, prompt manager. Catalog import via `laravel-ai-catalog`.
+5. **Payments, Courier, Dispatch, Returns, Rider panel**, notifications.
+6. **Accounting, Purchase/Supplier, Cash, HR + Attendance (`laravel-attendance-hub`), Payroll**.
+7. **CRM, Marketing, Coupons/Loyalty, Reviews, Tickets, Live Commerce, Affiliates, Storefront-lite**.
+8. **Dashboards/Reports** on `laravel-admin-panel`, scheduled reports, integrations hub, API + OpenAPI.
+9. **Platform layer**: plans, billing, tenant management, system health, backups.
+10. **Public website + CMS**, README/docs, SEO, sitemap.
+11. **Demo seeder, Live Demo page, simulator, nightly reset**.
+12. **Hardening**: security review, performance pass with `drutogoti`, N+1 sweep, test coverage, accessibility, final README sync.
+
+At the end of each phase: run tests, run Pint and Larastan, update README/MODULES docs, and report what was built.
+
+---
+
+## 11. RULES FOR YOU, THE CODE AGENT
+
+- Build the real thing, not stubs. Where an external service cannot be called without credentials, build the full adapter plus a high-fidelity mock and clear setup docs. Say explicitly which integrations are mock-only until credentials are added.
+- Never hard-code secrets. Never call real external services in demo mode or tests.
+- Do not invent package APIs. Read the package source/README first.
+- If a requirement is ambiguous, choose the most sensible default, note it in `DECISIONS.md`, and continue. Do not stop to ask unless blocked.
+- Keep code modular and consistent; follow Laravel and Filament conventions; write clear names and docblocks only where they add value.
+- Keep a running `PROGRESS.md` checklist mapped to sections 4 to 10.
+- Do not mark a module done until: migrations, models, policies, Filament UI, API, translations (EN + BN), seeders/factories, tests, module toggle behavior, README entry, and public-site feature entry all exist.
+
+---
+
+## 12. ACCEPTANCE CRITERIA (ALL MUST PASS)
+
+1. Fresh install following README works: `composer install`, `.env`, `php artisan migrate --seed`, `php artisan demo:seed`, queue and Reverb start, app opens.
+2. Live Demo page logs in as every user type for every demo business and each lands in the right panel with realistic data.
+3. Toggling any module OFF/ON in Module Center correctly hides/shows menus, routes, widgets, API, and jobs, with dependency warnings, and the app never errors with any combination of modules.
+4. A simulated Bangla WhatsApp message becomes a verified order via AI extraction, gets confirmed, reserves stock, ships through a mock courier, updates status from mock tracking events, collects COD, posts accounting entries, and appears correctly in reports.
+5. All seven required packages are actually used, each with a documented location in README.
+6. PDFs (invoice, label, payslip, report) render correctly in Bangla and English (and one RTL language sample).
+7. Tenant isolation tests pass; no cross-business data visible anywhere (UI, API, search, exports, reports).
+8. Public site has all pages in section 5, every feature in README appears on the public site, bilingual, Lighthouse performance 90+ on mobile for Home and Features.
+9. Test suite green, Pint clean, Larastan level 6+ clean, CI workflow present.
+10. README, MODULES.md, ARCHITECTURE.md, API docs, DECISIONS.md, PROGRESS.md are complete and accurate.
+
+Begin with Phase 1 now. After each phase, summarize what was done, what is mock-only, and what comes next, then continue automatically.

@@ -1,0 +1,27 @@
+{
+    "key": "purchases",
+    "name": "Purchases",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Purchases module for Social Commerce Order Manager.",
+    "dependencies": [
+        "inventory"
+    ],
+    "permissions": [
+        "purchases.view",
+        "purchases.create",
+        "purchases.update",
+        "purchases.delete"
+    ],
+    "menu": [
+        {
+            "label": "Purchases",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

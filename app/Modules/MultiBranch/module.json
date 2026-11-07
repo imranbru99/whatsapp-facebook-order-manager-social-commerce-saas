@@ -1,0 +1,25 @@
+{
+    "key": "multi_branch",
+    "name": "Multi-Branch",
+    "version": "1.0.0",
+    "group": "core",
+    "core": false,
+    "description": "Multi-Branch module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "multi_branch.view",
+        "multi_branch.create",
+        "multi_branch.update",
+        "multi_branch.delete"
+    ],
+    "menu": [
+        {
+            "label": "Multi-Branch",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

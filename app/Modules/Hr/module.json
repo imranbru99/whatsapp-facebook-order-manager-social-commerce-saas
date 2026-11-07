@@ -1,0 +1,25 @@
+{
+    "key": "hr",
+    "name": "HR & Attendance",
+    "version": "1.0.0",
+    "group": "E",
+    "core": false,
+    "description": "HR & Attendance module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "hr.view",
+        "hr.create",
+        "hr.update",
+        "hr.delete"
+    ],
+    "menu": [
+        {
+            "label": "HR & Attendance",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

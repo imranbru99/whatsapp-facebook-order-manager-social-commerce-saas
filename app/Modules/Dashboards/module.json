@@ -1,0 +1,25 @@
+{
+    "key": "dashboards",
+    "name": "Dashboards",
+    "version": "1.0.0",
+    "group": "F",
+    "core": false,
+    "description": "Dashboards module for Social Commerce Order Manager.",
+    "dependencies": [],
+    "permissions": [
+        "dashboards.view",
+        "dashboards.create",
+        "dashboards.update",
+        "dashboards.delete"
+    ],
+    "menu": [
+        {
+            "label": "Dashboards",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

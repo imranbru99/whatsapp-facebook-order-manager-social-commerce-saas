@@ -1,0 +1,27 @@
+{
+    "key": "accounting",
+    "name": "Accounting",
+    "version": "1.0.0",
+    "group": "C",
+    "core": false,
+    "description": "Accounting module for Social Commerce Order Manager.",
+    "dependencies": [
+        "payments"
+    ],
+    "permissions": [
+        "accounting.view",
+        "accounting.create",
+        "accounting.update",
+        "accounting.delete"
+    ],
+    "menu": [
+        {
+            "label": "Accounting",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

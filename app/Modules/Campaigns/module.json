@@ -1,0 +1,27 @@
+{
+    "key": "campaigns",
+    "name": "Marketing Campaigns",
+    "version": "1.0.0",
+    "group": "D",
+    "core": false,
+    "description": "Marketing Campaigns module for Social Commerce Order Manager.",
+    "dependencies": [
+        "customers"
+    ],
+    "permissions": [
+        "campaigns.view",
+        "campaigns.create",
+        "campaigns.update",
+        "campaigns.delete"
+    ],
+    "menu": [
+        {
+            "label": "Marketing Campaigns",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,27 @@
+{
+    "key": "crm",
+    "name": "CRM Pipeline",
+    "version": "1.0.0",
+    "group": "D",
+    "core": false,
+    "description": "CRM Pipeline module for Social Commerce Order Manager.",
+    "dependencies": [
+        "customers"
+    ],
+    "permissions": [
+        "crm.view",
+        "crm.create",
+        "crm.update",
+        "crm.delete"
+    ],
+    "menu": [
+        {
+            "label": "CRM Pipeline",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

@@ -1,0 +1,15 @@
+REPO_NAME:
+whatsapp-facebook-order-manager-social-commerce-saas
+
+GITHUB_DESCRIPTION:
+WhatsApp & Facebook Order Manager — social commerce SaaS that turns Messenger, Instagram & WhatsApp chats into COD orders with AI Bangla order extraction, unified inbox, inventory, Pathao/Steadfast courier, bKash payments. Laravel Filament multi-tenant for Facebook sellers. By Imran Ahmed | imrandev.bd
+
+CHAR_COUNT: 328
+
+ALTERNATES:
+social-commerce-order-manager-facebookwhatsapp-orders
+facebook-whatsapp-order-management-system
+chat-to-order-whatsapp-crm-laravel
+
+TOPICS:
+whatsapp-order, facebook-order, social-commerce, messenger-crm, cod-ecommerce, bangla-ai, pathao, steadfast, bkash, laravel, filament, multi-tenant-saas, inbox

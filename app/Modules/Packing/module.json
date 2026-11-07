@@ -1,0 +1,28 @@
+{
+    "key": "packing",
+    "name": "Packing & Dispatch",
+    "version": "1.0.0",
+    "group": "B",
+    "core": false,
+    "description": "Packing & Dispatch module for Social Commerce Order Manager.",
+    "dependencies": [
+        "orders",
+        "inventory"
+    ],
+    "permissions": [
+        "packing.view",
+        "packing.create",
+        "packing.update",
+        "packing.delete"
+    ],
+    "menu": [
+        {
+            "label": "Packing & Dispatch",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}

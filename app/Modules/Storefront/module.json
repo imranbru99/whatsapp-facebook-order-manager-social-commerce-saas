@@ -1,0 +1,28 @@
+{
+    "key": "storefront",
+    "name": "Storefront Lite",
+    "version": "1.0.0",
+    "group": "D",
+    "core": false,
+    "description": "Storefront Lite module for Social Commerce Order Manager.",
+    "dependencies": [
+        "catalog",
+        "orders"
+    ],
+    "permissions": [
+        "storefront.view",
+        "storefront.create",
+        "storefront.update",
+        "storefront.delete"
+    ],
+    "menu": [
+        {
+            "label": "Storefront Lite",
+            "icon": "heroicon-o-cube",
+            "route": null
+        }
+    ],
+    "settings_schema": {},
+    "events_emits": [],
+    "events_listens": []
+}
